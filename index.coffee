@@ -44,4 +44,4 @@ describe 'a hubot using the campfire adapter', () ->
     sayAndExpect "hubot ping", "PONG", done
 
   it 'responds to hubot adapter with campfire', (done) ->
-    sayAndExpect "hubot adapter", "slacks", done
+    sayAndExpect "hubot adapter", "campfire", done
