@@ -4,10 +4,10 @@ assert = require 'assert'
 dotenv = require 'dotenv'
 dotenv.load()
 
-TOKEN = process.env.CAMPFIRE_TOKEN
-ROOM_ID = process.env.CAMPFIRE_ROOM_ID
-ACCOUNT = process.env.CAMPFIRE_ACCOUNT
-HUBOT_USER_ID = parseInt process.env.CAMPFIRE_HUBOT_USER_ID
+TOKEN = process.env.TEST_CAMPFIRE_TOKEN
+ROOM_ID = process.env.TEST_CAMPFIRE_ROOM_ID
+ACCOUNT = process.env.TEST_CAMPFIRE_ACCOUNT
+HUBOT_USER_ID = parseInt process.env.EXPECTED_CAMPFIRE_HUBOT_USER_ID
 Campfire = require('campfire').Campfire
 
 describe 'a hubot using the campfire adapter', () ->
