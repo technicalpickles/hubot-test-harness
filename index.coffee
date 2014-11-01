@@ -17,12 +17,10 @@ describe 'a hubot using the campfire adapter', () ->
     token   : TOKEN,
     account : ACCOUNT
 
-
   it 'responds to hubot ping with PONG', (done) ->
 
     campfire.join ROOM_ID, (err, room) ->
-
-      room.speak "hubot ping", (err, res) ->
+      room.speak "hubo ping", (err, res) ->
         done(err) if err?
 
         listener = null
