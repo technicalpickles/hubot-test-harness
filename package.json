@@ -7,16 +7,15 @@
     "campfire": "^0.2.0",
     "coffee-script": "^1.8.0",
     "dotenv": "^0.4.0",
-    "mocha": "^2.0.1"
+    "ltx": "^0.7.0",
+    "mocha": "^2.0.1",
+    "node-xmpp-client": "^1.0.0-alpha17"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --compilers coffee:coffee-script/register -t 10s index.coffee"
   },
   "author": "",
   "license": "MIT",
-  "private": true,
-  "scripts": {
-    "test": "mocha --compilers coffee:coffee-script/register -t 10s index.coffee"
-  }
+  "private": true
 }
