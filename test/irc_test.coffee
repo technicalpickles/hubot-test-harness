@@ -33,6 +33,9 @@ class IrcHarness
       callback(@client)
     , 1000
 
+  send: (body) ->
+    @client.say @room, body
+
 
 describe 'a hubot using the irc adapter', () ->
 
@@ -46,5 +49,5 @@ describe 'a hubot using the irc adapter', () ->
     harness = new IrcHarness harnessOptions
 
     harness.connect (client) ->
-      client.say harness.room, "hubot ping"
+      harness.send "hubot ping"
     , done
