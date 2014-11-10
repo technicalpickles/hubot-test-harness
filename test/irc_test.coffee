@@ -6,20 +6,34 @@ dotenv.load()
 
 irc = require('irc')
 
+class IrcHarness
+  constructor: (@options) ->
+
+    if @options
+      @nick = @options.nick
+      @server = @options.server
+      @room = @options.room
+      @hubotNick = @options.hubotNick
+
+
+    @client = new irc.Client(@server, @nick, channels: [@room])
 
 describe 'a hubot using the irc adapter', () ->
-  NICK = process.env.TEST_IRC_NICK
-  SERVER = process.env.TEST_IRC_SERVER
-  ROOM = process.env.TEST_IRC_ROOM
-  HUBOT_NICK = process.env.EXPECTED_IRC_HUBOT_NICK
+
+  harnessOptions =
+    nick:       process.env.TEST_IRC_NICK
+    server:     process.env.TEST_IRC_SERVER
+    room:       process.env.TEST_IRC_ROOM
+    hubotNick: process.env.EXPECTED_IRC_HUBOT_NICK
+  harness = new IrcHarness harnessOptions
 
   it 'responds to hubot ping with PONG', (done) ->
-    client = new irc.Client(SERVER, NICK, channels: [ROOM])
+    client = harness.client
 
     messagesReceived = []
 
-    client.addListener "message#{ROOM}", (from, message) ->
-      if from is HUBOT_NICK
+    client.addListener "message#{harness.room}", (from, message) ->
+      if from is harness.hubotNick
         messagesReceived.push message
         if message is "PONG"
           done()
@@ -28,5 +42,5 @@ describe 'a hubot using the irc adapter', () ->
       done(message)
 
     setTimeout ->
-      client.say ROOM, "hubot ping"
+      client.say harness.room, "hubot ping"
     , 1000
