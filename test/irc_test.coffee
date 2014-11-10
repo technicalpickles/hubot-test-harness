@@ -18,6 +18,8 @@ class IrcHarness
 
     @client = new irc.Client(@server, @nick, channels: [@room])
 
+    @hubotMessages = []
+
 describe 'a hubot using the irc adapter', () ->
 
   harnessOptions =
@@ -30,11 +32,9 @@ describe 'a hubot using the irc adapter', () ->
   it 'responds to hubot ping with PONG', (done) ->
     client = harness.client
 
-    messagesReceived = []
-
     client.addListener "message#{harness.room}", (from, message) ->
       if from is harness.hubotNick
-        messagesReceived.push message
+        harness.hubotMessages.push message
         if message is "PONG"
           done()
 
