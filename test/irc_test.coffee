@@ -17,10 +17,13 @@ class IrcHarness
 
     @hubotMessages = []
 
-  connect: (callback) ->
+  connect: (callback, done) ->
     @client = new irc.Client(@server, @nick, channels: [@room])
 
-    callback(@client) if callback?
+    @client.addListener "error", (message) ->
+      done(message)
+
+    callback(@client, done)
 
 
 describe 'a hubot using the irc adapter', () ->
@@ -36,15 +39,13 @@ describe 'a hubot using the irc adapter', () ->
 
   it 'responds to hubot ping with PONG', (done) ->
     harness.connect (client) ->
-      client.addListener "message#{harness.room}", (from, message) ->
+      client.addListener "message#{harness.room}", (from, message) =>
         if from is harness.hubotNick
           harness.hubotMessages.push message
           if message is "PONG"
             done()
 
-      client.addListener "error", (message) ->
-        done(message)
-
       setTimeout ->
         client.say harness.room, "hubot ping"
       , 1000
+    , done
