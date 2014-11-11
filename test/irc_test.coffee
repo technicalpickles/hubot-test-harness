@@ -59,12 +59,17 @@ describe 'a hubot using the irc adapter', () ->
   afterEach () ->
     harness.disconnect()
 
-  it 'responds to hubot ping with PONG', (done) ->
-    harness.send "hubot ping", (message) ->
-      assert.equal message, 'PONG', "received PONG from hubot"
+  it 'responds to ping with PONG', (done) ->
+    harness.send "hubot ping", (response) ->
+      assert.equal response, 'PONG', "received PONG from hubot"
       done()
 
-  it 'responds to hubot adapter with irc', (done) ->
-    harness.send "hubot adapter", (message) ->
-      assert.equal message, 'irc', "received irc from hubot"
+  it 'responds to adapter with irc', (done) ->
+    harness.send "hubot adapter", (response) ->
+      assert.equal response, 'irc', "received irc from hubot"
+      done()
+
+  it 'responds to pug bomb with appropriate number of pugs', (done) ->
+    harness.send "hubot pug bomb 1", (response) ->
+      assert.match response, /^http.*(jpe?g|gif)$/, "received pug url"
       done()
