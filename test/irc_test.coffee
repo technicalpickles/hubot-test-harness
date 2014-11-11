@@ -18,39 +18,28 @@ class IrcHarness
 
     @hubotMessages = []
 
-  connect: (options) ->
+  connect: (callback) ->
+    @client = new irc.Client(@server, @nick, channels: [@room], autoConnect: false)
 
-    readyCallback = options.ready
-    done = options.done
-    expectedBody = options.expect
-    sendBody = options.send
-    validateCallback = options.validate
 
-    @client = new irc.Client(@server, @nick, channels: [@room])
 
-    @client.addListener "error", (message) ->
-      done(message)
 
-    @client.addListener "message#{@room}", (from, message) =>
-      if from is @hubotNick
-        @hubotMessages.push message
+    @client.connect () ->
+      # give it a chance to actually show up in chat
+      setTimeout () ->
+        callback()
+      , 500
 
-        if validateCallback
-          validateCallback(@hubotMessages)
-        else if expectedBody and message is expectedBody
-          done()
-
-    # wait a second to make sure room server is connected and room joined
-    setTimeout () =>
-      if sendBody
-        @send sendBody
-      else
-        readyCallback()
-    , 1000
+  disconnect: (callback) ->
+    @client.disconnect "test done", callback
 
   send: (body, callback) ->
-    @client.say @room, body
+    # room has # in it already
+    @client.addListener "message#{@room}", (from, message) =>
+      if from is @hubotNick
+        callback(message) if callback
 
+    @client.say @room, body
 
 describe 'a hubot using the irc adapter', () ->
 
@@ -60,21 +49,22 @@ describe 'a hubot using the irc adapter', () ->
     room:       process.env.TEST_IRC_ROOM
     hubotNick: process.env.EXPECTED_IRC_HUBOT_NICK
 
-  it 'responds to hubot ping with PONG', (done) ->
+  harness = null
+
+  beforeEach (done) ->
     harness = new IrcHarness harnessOptions
+    harness.connect () ->
+      done()
 
-    harness.connect
-      send:   "hubot ping"
-      done:   done
-      validate: (messages) ->
-        assert.equal messages[0], 'PONG', "received PONG from hubot"
-        done()
+  afterEach () ->
+    harness.disconnect()
 
-  # it 'responds to hubot adapter with irc', (done) ->
-  #   harness = new IrcHarness harnessOptions
-  #
-  #   harness.send
-  #   harness.connect
-  #     send:   "hubot adapter"
-  #     expect: "irc"
-  #     done:   done
+  it 'responds to hubot ping with PONG', (done) ->
+    harness.send "hubot ping", (message) ->
+      assert.equal message, 'PONG', "received PONG from hubot"
+      done()
+
+  it 'responds to hubot adapter with irc', (done) ->
+    harness.send "hubot adapter", (message) ->
+      assert.equal message, 'irc', "received irc from hubot"
+      done()
