@@ -33,11 +33,24 @@ class IrcHarness
   disconnect: (callback) ->
     @client.disconnect "test done", callback
 
-  send: (body, callback) ->
+  sendAndReceive: (body, options, callback) ->
+    if typeof(options) == 'function'
+      callback = options
+      options = {}
+
+    receiveCount = options.count or 1
+
+    messages = []
     # room has # in it already
     @client.addListener "message#{@room}", (from, message) =>
       if from is @hubotNick
-        callback(message) if callback
+        if receiveCount is 1
+          callback(message) if callback
+        else
+          messages.push message
+
+          if messages.length is receiveCount
+            callback(messages)
 
     @client.say @room, body
 
@@ -60,16 +73,17 @@ describe 'a hubot using the irc adapter', () ->
     harness.disconnect()
 
   it 'responds to ping with PONG', (done) ->
-    harness.send "hubot ping", (response) ->
-      assert.equal response, 'PONG', "received PONG from hubot"
+    harness.sendAndReceive "hubot ping", (message) ->
+      assert.equal message, 'PONG', "received PONG from hubot"
       done()
 
   it 'responds to adapter with irc', (done) ->
-    harness.send "hubot adapter", (response) ->
-      assert.equal response, 'irc', "received irc from hubot"
+    harness.sendAndReceive "hubot adapter", (message) ->
+      assert.equal message, 'irc', "received irc from hubot"
       done()
 
   it 'responds to pug bomb with appropriate number of pugs', (done) ->
-    harness.send "hubot pug bomb 1", (response) ->
-      assert.match response, /^http.*(jpe?g|gif)$/, "received pug url"
+    harness.sendAndReceive "hubot pug bomb 2", count: 2, (messages) ->
+      assert.match messages[0], /^http.*(jpe?g|gif|png)$/, "received first pug url"
+      assert.match messages[1], /^http.*(jpe?g|gif|png)$/, "received second pug url"
       done()
