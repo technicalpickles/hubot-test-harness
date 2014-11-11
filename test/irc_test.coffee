@@ -1,4 +1,5 @@
-assert = require 'assert'
+chai = require 'chai'
+assert = chai.assert
 
 {inspect} = require 'util'
 dotenv = require 'dotenv'
@@ -23,6 +24,7 @@ class IrcHarness
     done = options.done
     expectedBody = options.expect
     sendBody = options.send
+    validateCallback = options.validate
 
     @client = new irc.Client(@server, @nick, channels: [@room])
 
@@ -32,7 +34,10 @@ class IrcHarness
     @client.addListener "message#{@room}", (from, message) =>
       if from is @hubotNick
         @hubotMessages.push message
-        if message is expectedBody
+
+        if validateCallback
+          validateCallback(@hubotMessages)
+        else if expectedBody and message is expectedBody
           done()
 
     # wait a second to make sure room server is connected and room joined
@@ -43,7 +48,7 @@ class IrcHarness
         readyCallback()
     , 1000
 
-  send: (body) ->
+  send: (body, callback) ->
     @client.say @room, body
 
 
@@ -60,13 +65,16 @@ describe 'a hubot using the irc adapter', () ->
 
     harness.connect
       send:   "hubot ping"
-      expect: "PONG"
       done:   done
+      validate: (messages) ->
+        assert.equal messages[0], 'PONG', "received PONG from hubot"
+        done()
 
-  it 'responds to hubot adapter with irc', (done) ->
-    harness = new IrcHarness harnessOptions
-
-    harness.connect
-      send:   "hubot adapter"
-      expect: "irc"
-      done:   done
+  # it 'responds to hubot adapter with irc', (done) ->
+  #   harness = new IrcHarness harnessOptions
+  #
+  #   harness.send
+  #   harness.connect
+  #     send:   "hubot adapter"
+  #     expect: "irc"
+  #     done:   done
