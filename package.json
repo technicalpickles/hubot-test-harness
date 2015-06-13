@@ -16,7 +16,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "mocha --compilers coffee:coffee-script/register -t 10s index.coffee"
+    "test": "mocha --compilers coffee:coffee-script/register -t 10s index.coffee",
+    "test:irc": "bash build-a-bot.sh && npm test -- test/irc_test.coffee"
   },
   "author": "",
   "license": "MIT",
