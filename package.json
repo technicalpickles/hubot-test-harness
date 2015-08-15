@@ -5,16 +5,19 @@
   "main": "index.coffee",
   "dependencies": {
     "campfire": "^0.2.0",
+    "chai": "^3.0.0",
     "coffee-script": "^1.8.0",
     "dotenv": "^0.4.0",
     "irc": "^0.3.7",
+    "ircdjs": "^0.0.17",
     "ltx": "^0.7.0",
     "mocha": "^2.0.1",
     "node-xmpp-client": "^1.0.0-alpha17"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "mocha --compilers coffee:coffee-script/register -t 10s index.coffee"
+    "test": "mocha --compilers coffee:coffee-script/register -t 10s index.coffee",
+    "test:irc": "bash build-a-bot.sh && npm test -- test/irc_test.coffee"
   },
   "author": "",
   "license": "MIT",
